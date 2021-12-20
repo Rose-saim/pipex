@@ -22,7 +22,7 @@ typedef struct s_pipex
 	char	**args_cmd;
 }               t_pipex;
 
-char	*ft_strjoin_connect(char *s1, char *s2, int c);
+char	*ft_strjoin(char *s1, char *s2);
 char	**get_path(char **envp);
 char	**ft_split(char *s, char c);
 
@@ -30,7 +30,7 @@ int		ft_strncmp(char *s1, char *s2, unsigned int n);
 int	ft_strlen(char *str);
 
 void	close_and_free(t_pipex *pipex);
-void	init_process(int ac, char **av, t_pipex *pipex);
+void	init_process(t_pipex *pipex);
 void	first_child(t_pipex pipex, char **av, char **envp);
 void	free_first_process(t_pipex *pipex);
 void	free_second_process(t_pipex *pipex);

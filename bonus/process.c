@@ -8,6 +8,7 @@ static char	*get_cmd(char **paths, char *cmd)
 	while (*paths)
 	{
 		command = ft_strjoin_connect(*paths, cmd, '/');
+		free(tmp);
 		if (access(command, 0) == 0)
 			return (command);
 		free(command);
@@ -67,7 +68,6 @@ void	first_child(t_pipex pipex, char	**av, char	**envp)
 		msg_error("Command doesn't exists");
 	}
 	execve(pipex.cmd, pipex.args_cmd, envp);
-	// Condition error
 }
 
 
@@ -87,5 +87,4 @@ void	second_child(t_pipex pipex, char **av, char	**envp)
 		exit (2);
 	}
 	execve(pipex.cmd, pipex.args_cmd, envp);
-	// Condition error
 }

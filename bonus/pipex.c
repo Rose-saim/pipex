@@ -7,7 +7,7 @@ char	**get_path(char **envp)
 	paths = NULL;
 	while (*envp && ft_strncmp("PATHS", *envp, 4) != 0)
 		++envp;
-	paths = ft_split(*envp + 5, ':');
+	paths = ft_split_cmd(*envp + 5);
 	return (paths);
 }
 
