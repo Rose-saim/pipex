@@ -1,14 +1,12 @@
 #include "pipex.h"
 
-
-static char	*get_cmd(char **paths, char *cmd)
+char	*get_cmd(char **paths, char *cmd)
 {
 	char	*command;
 
 	while (*paths)
 	{
 		command = ft_strjoin_connect(*paths, cmd, '/');
-		free(tmp);
 		if (access(command, 0) == 0)
 			return (command);
 		free(command);
@@ -17,74 +15,109 @@ static char	*get_cmd(char **paths, char *cmd)
 	return (NULL);
 }
 
-void	free_first_process(t_pipex *pipex)
+void	free_dbl_pointer(char **pointer)
 {
-		int	i;
+	int	i;
 
 	i = 0;
-	while (pipex->args_cmd[i])
+	while (pointer[i])
 	{
-		free((pipex->args_cmd[i]));
+		free(pointer[i]);
 		++i;
 	}
-	free(pipex->args_cmd);
+	free(pointer[i]);
+	free(pointer);
 }
 
-
-void	free_second_process(t_pipex *pipex)
+char	*get_path(char *cmd, char **envp)
 {
-	size_t	i;
+	char	**paths;
+	char	*bin;
 
-	i = 0;
-	while (pipex->paths_cmd[i])
+	while (ft_strncmp(*envp, "PATH", 4))
+		++envp;
+	paths = ft_split(*envp + 5, ':');
+	bin = get_cmd(paths, cmd);
+	free_dbl_pointer(paths);
+	return (bin);
+}
+
+void	exec(char *cmd, char **env)
+{
+	char	**args;
+	char	*path;
+	int		ret;
+
+	args = ft_split(cmd, ' ');
+	path = get_path(args[0], env);
+	if (path == NULL)
 	{
-		free(pipex->paths_cmd[i]);
-		++i;
+		free_dbl_pointer(args);
+		free(path);
+		msg_error("No find path command");
 	}
-	free(pipex->paths_cmd);
-	close_and_free(pipex);
+	else
+	{
+		ret = execve(path, args, env);
+		if (ret < 0)
+		{
+			msg_error("Error about execve");
+
+		}
+		else
+			msg_error("Error about execve");
+		exit(1);
+	}
 }
 
-void	verif_dup2(int fd, int exit)
+void	redir(char *cmd, char **env)
 {
-	int	ret;
+	pid_t	child;
+	int		ret;
+	int		door[2];
 
-	ret = dup2(fd, exit);
+	ret = pipe(door);
 	if (ret < 0)
-		msg_error("Error dup2");
+		msg_error("Error pipe in redir");
+	child = fork();
+	if (child < 0)
+		msg_error("Error fork in redir");
+	if (child)
+	{
+		close(door[1]);
+		verif_dup2(door[0], STDIN_FILENO);
+		close(door[0]);
+		waitpid(child, NULL, 0);
+	}
+	else
+	{
+		close(door[0]);
+		verif_dup2(door[1], STDOUT_FILENO);
+		close(door[1]);
+		exec(cmd, env);
+	}
 }
 
-void	first_child(t_pipex pipex, char	**av, char	**envp)
+void	here_doc(char *limiter)
 {
-	close(pipex.door[0]);
-	verif_dup2(pipex.fd_int, 0);
-	verif_dup2(pipex.door[1], 1);
-	pipex.args_cmd = ft_split(av[2], ' ');
-	pipex.cmd = get_cmd(pipex.paths_cmd, pipex.args_cmd[0]);
-	if (pipex.cmd == NULL)
+	pid_t	child;
+	int		door[2];
+	int		ret;
+
+	write(1, "heredoc>", 8);
+	ret = pipe(door);
+	if (ret < 0)
+		msg_error("Error pipe in here_doc");
+	child = fork();
+	if (child < 0)
+		perror("Error fork in here_doc");
+	if (child == 0)
+		write_to_limiter(limiter, door);
+	else
 	{
-		free_first_process(&pipex);
-		free_second_process(&pipex);
-		msg_error("Command doesn't exists");
+		close(door[1]);
+		verif_dup2(door[0], 0);
+		close(door[0]);
+		waitpid(child, NULL, 0);
 	}
-	execve(pipex.cmd, pipex.args_cmd, envp);
-}
-
-
-void	second_child(t_pipex pipex, char **av, char	**envp)
-{
-
-	close(pipex.door[1]);
-	verif_dup2(pipex.fd_out, 1);
-	verif_dup2(pipex.door[0], 0);
-	pipex.args_cmd = ft_split(av[3], ' ');
-	pipex.cmd = get_cmd(pipex.paths_cmd, pipex.args_cmd[0]);
-	if (pipex.cmd == NULL)
-	{
-		free_first_process(&pipex);
-		free_second_process(&pipex);
-		msg_error("Command doesn't exists");
-		exit (2);
-	}
-	execve(pipex.cmd, pipex.args_cmd, envp);
 }

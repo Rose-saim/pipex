@@ -1,4 +1,6 @@
-MANDA_NAMES = 	pipex.c utils.c process.c split.c
+MANDA_NAMES = 	pipex.c utils.c process.c split.c \
+				gnl/get_next_line.c	gnl/get_next_line_utils.c \
+				error.c
 
 MANDA_OBJS =	 $(MANDA_NAMES:.c=.o)
 

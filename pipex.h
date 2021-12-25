@@ -26,9 +26,11 @@ char	*ft_strjoin_connect(char *s1, char *s2, int c);
 char	**get_path(char **envp);
 char	**ft_split(char *s, char c);
 
+int argument_empty(char **av);
 int		ft_strncmp(char *s1, char *s2, unsigned int n);
 int	ft_strlen(char *str);
 
+void	verif_dup2(int fd, int exit);
 void	close_and_free(t_pipex *pipex);
 void	init_process(int ac, char **av, t_pipex *pipex);
 void	first_child(t_pipex pipex, char **av, char **envp);

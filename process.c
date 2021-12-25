@@ -67,7 +67,6 @@ void	first_child(t_pipex pipex, char	**av, char	**envp)
 		msg_error("Command doesn't exists");
 	}
 	execve(pipex.cmd, pipex.args_cmd, envp);
-	// Condition error
 }
 
 

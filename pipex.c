@@ -29,6 +29,8 @@ void	init_process(int ac, char **av, t_pipex *pipex)
 {
 	if (ac != 5)
 		msg_error("Numbers of arguments is wrong");
+	if (argument_empty(av) == -1)
+		msg_error("Argument empty");
 	pipex->fd_int = open(av[1], O_RDONLY);
 	if (pipex->fd_int < 0)
 		msg_error("Intfile no exist");

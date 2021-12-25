@@ -22,20 +22,25 @@ typedef struct s_pipex
 	char	**args_cmd;
 }               t_pipex;
 
-char	*ft_strjoin(char *s1, char *s2);
-char	**get_path(char **envp);
-char	**ft_split(char *s, char c);
 
-int		ft_strncmp(char *s1, char *s2, unsigned int n);
+char	*ft_strjoin_connect(char *s1, char *s2, int c);
+char	*get_path(char *cmd, char **env);
+char	**ft_split(char *s, char c);
+char	*get_cmd(char **paths, char *cmd);
+
+int argument_empty(char **av);
+int	get_next_line(int fd, char **line);
+int	ft_strcmp(char *s1, char *s2);
+int	ft_strncmp(char *s1, char *s2, unsigned int n);
 int	ft_strlen(char *str);
 
 void	close_and_free(t_pipex *pipex);
-void	init_process(t_pipex *pipex);
-void	first_child(t_pipex pipex, char **av, char **envp);
-void	free_first_process(t_pipex *pipex);
-void	free_second_process(t_pipex *pipex);
+void	exec(char *cmd, char **env);
+void	here_doc(char *limiter);
 void	msg_error(char *str);
+void	redir(char *cmd, char **env);
 void	open_file(t_pipex *pipex, char **av);
-void	second_child(t_pipex pipex, char **av, char **envp);
+void	verif_dup2(int fd, int exit);
+void	write_to_limiter(char *limiter, int door[]);
 
 #endif

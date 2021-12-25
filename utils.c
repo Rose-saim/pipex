@@ -52,3 +52,21 @@ int		ft_strncmp(char *s1, char *s2, unsigned int n)
 	}
 	return (r);
 }
+
+int argument_empty(char **av)
+{
+    int i;
+    int o;
+
+    i = 0;
+    while (av[i])
+    {
+        o = 0;
+        while (av && av[i][o] && av[i][o] == ' ')
+            ++o;
+        if (!(ft_strlen(*(av + i) + o) > 0))
+            return (-1);
+        ++i;
+    }
+    return (1);
+}
