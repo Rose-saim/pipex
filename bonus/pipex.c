@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/25 13:39:15 by myrmarti          #+#    #+#             */
+/*   Updated: 2022/01/25 14:34:27 by myrmarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
-int	openfile (char *filename, int mode)
+int	openfile(char *filename, int mode)
 {
 	if (mode == 0)
 	{
@@ -21,16 +33,20 @@ int	openfile (char *filename, int mode)
 void	write_to_limiter(char *limiter, int door[])
 {
 	char	*line;
+	int		i;
 
 	close(door[0]);
-	while (get_next_line(0, &line))
+	i = 0;
+	while (i == 0 || !line)
 	{
+		line = get_next_line(0);
 		if (ft_strcmp(line, limiter) == 0)
 		{
 			free(line);
 			close(door[1]);
 			exit (1);
 		}
+		i = 1;
 		write(1, "heredoc>", 8);
 		write(door[1], line, ft_strlen(line));
 		free(line);
@@ -40,7 +56,7 @@ void	write_to_limiter(char *limiter, int door[])
 	perror("ERROR");
 }
 
-int	main (int ac, char **av, char **env)
+int	main(int ac, char **av, char **env)
 {
 	int	fdin;
 	int	fdout;
@@ -54,19 +70,16 @@ int	main (int ac, char **av, char **env)
 	{
 		i = 3;
 		here_doc(av[2]);
-		fdout = openfile(av[ac - 1], 1);
 	}
 	else
 	{
 		i = 2;
-		fdin = openfile(av[1], 0);
-		fdout = openfile(av[ac - 1], 1);
-		verif_dup2(fdin, 0);
+		fdin = manage_fd(av[1], 0);
 		close(fdin);
 	}
 	while (i < ac - 2)
 		redir(av[i++], env);
-	verif_dup2(fdout, 1);
+	fdout = manage_fd(av[ac - 1], 1);
 	close (fdout);
 	exec(av[ac - 2], env);
 	return (1);

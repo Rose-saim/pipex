@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/25 14:18:19 by myrmarti          #+#    #+#             */
+/*   Updated: 2022/01/25 14:18:33 by myrmarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 char	*ft_strjoin_connect(char *s1, char *s2, int c)
@@ -24,42 +36,54 @@ char	*ft_strjoin_connect(char *s1, char *s2, int c)
 	return (to_return);
 }
 
-int	ft_strlen(char *str)
-{
-	int	i;
-	
-	i = 0;
-	while (str && str[i])
-		++i;
-	return (i);
-}
-
-
-int		ft_strncmp(char *s1, char *s2, unsigned int n)
-{
-	unsigned int	i;
-	int				r;
-
-	r = 0;
-	i = 0;
-	while ((s1[i] || s2[i]) && r == 0 && i < n)
-	{
-		if (s1[i] != s2[i])
-		{
-			r = s1[i] - s2[i];
-		}
-		i++;
-	}
-	return (r);
-}
-
-
 int	ft_strcmp(char *s1, char *s2)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
 		i++;
 	return (s1[i] - s2[i]);
+}
+
+char	*get_cmd(char **paths, char *cmd)
+{
+	char	*command;
+
+	while (*paths)
+	{
+		command = ft_strjoin_connect(*paths, cmd, '/');
+		if (access(command, 0) == 0)
+			return (command);
+		free(command);
+		paths++;
+	}
+	return (NULL);
+}
+
+void	free_dbl_pointer(char **pointer)
+{
+	int	i;
+
+	i = 0;
+	while (pointer[i])
+	{
+		free(pointer[i]);
+		++i;
+	}
+	free(pointer[i]);
+	free(pointer);
+}
+
+char	*get_path(char *cmd, char **envp)
+{
+	char	**paths;
+	char	*bin;
+
+	while (ft_strncmp(*envp, "PATH", 4))
+		++envp;
+	paths = ft_split(*envp + 5, ':');
+	bin = get_cmd(paths, cmd);
+	free_dbl_pointer(paths);
+	return (bin);
 }

@@ -1,46 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   process.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/25 14:13:59 by myrmarti          #+#    #+#             */
+/*   Updated: 2022/01/25 14:15:04 by myrmarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
-
-char	*get_cmd(char **paths, char *cmd)
-{
-	char	*command;
-
-	while (*paths)
-	{
-		command = ft_strjoin_connect(*paths, cmd, '/');
-		if (access(command, 0) == 0)
-			return (command);
-		free(command);
-		paths++;
-	}
-	return (NULL);
-}
-
-void	free_dbl_pointer(char **pointer)
-{
-	int	i;
-
-	i = 0;
-	while (pointer[i])
-	{
-		free(pointer[i]);
-		++i;
-	}
-	free(pointer[i]);
-	free(pointer);
-}
-
-char	*get_path(char *cmd, char **envp)
-{
-	char	**paths;
-	char	*bin;
-
-	while (ft_strncmp(*envp, "PATH", 4))
-		++envp;
-	paths = ft_split(*envp + 5, ':');
-	bin = get_cmd(paths, cmd);
-	free_dbl_pointer(paths);
-	return (bin);
-}
 
 void	exec(char *cmd, char **env)
 {
@@ -60,10 +30,7 @@ void	exec(char *cmd, char **env)
 	{
 		ret = execve(path, args, env);
 		if (ret < 0)
-		{
 			msg_error("Error about execve");
-
-		}
 		else
 			msg_error("Error about execve");
 		exit(1);

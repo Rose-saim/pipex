@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/25 11:48:31 by myrmarti          #+#    #+#             */
+/*   Updated: 2022/01/25 13:45:13 by myrmarti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 char	*ft_strjoin_connect(char *s1, char *s2, int c)
@@ -24,49 +36,29 @@ char	*ft_strjoin_connect(char *s1, char *s2, int c)
 	return (to_return);
 }
 
-int	ft_strlen(char *str)
+int	argument_empty(char **av)
 {
 	int	i;
-	
+	int	o;
+
 	i = 0;
-	while (str[i])
-		++i;
-	return (i);
-}
-
-
-int		ft_strncmp(char *s1, char *s2, unsigned int n)
-{
-	unsigned int	i;
-	int				r;
-
-	r = 0;
-	i = 0;
-	while ((s1[i] || s2[i]) && r == 0 && i < n)
+	while (av[i])
 	{
-		if (s1[i] != s2[i])
-		{
-			r = s1[i] - s2[i];
-		}
-		i++;
+		o = 0;
+		while (av && av[i][o] && av[i][o] == ' ')
+			++o;
+		if (!(ft_strlen(*(av + i) + o) > 0))
+			return (-1);
+		++i;
 	}
-	return (r);
+	return (1);
 }
 
-int argument_empty(char **av)
+void	verif_dup2(int fd, int exit)
 {
-    int i;
-    int o;
+	int	ret;
 
-    i = 0;
-    while (av[i])
-    {
-        o = 0;
-        while (av && av[i][o] && av[i][o] == ' ')
-            ++o;
-        if (!(ft_strlen(*(av + i) + o) > 0))
-            return (-1);
-        ++i;
-    }
-    return (1);
+	ret = dup2(fd, exit);
+	if (ret < 0)
+		msg_error("Error dup2");
 }
