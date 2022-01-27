@@ -6,7 +6,7 @@
 /*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:39:15 by myrmarti          #+#    #+#             */
-/*   Updated: 2022/01/25 14:34:27 by myrmarti         ###   ########.fr       */
+/*   Updated: 2022/01/27 10:21:38 by myrmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,23 +70,27 @@ void	last_child(t_pipex *pipex, char **env, char *cmd)
 	else
 	{
 		close(pipex->door[0]);
-		exec(pipex,  cmd, env);
+		exec(pipex, cmd, env);
 	}
-	waitpid(pipex->child_1,NULL, 0);
 }
 
-int	main(int ac, char **av, char **env)
+void	error(int ac, char **av)
 {
-	t_pipex pipex;
-	int	fdin;
-	int	fdout;
-	int	i;
-
-	pipex.child_1 = 0;
 	if (ac < 5)
 		msg_error("Invalid number of arguments\n");
 	if (argument_empty(av) == -1)
 		msg_error("Argument empty");
+}
+
+int	main(int ac, char **av, char **env)
+{
+	t_pipex	pipex;
+	int		fdin;
+	int		fdout;
+	int		i;
+
+	pipex.child_1 = 0;
+	error(ac, av);
 	if (ft_strcmp(av[1], "here_doc") == 0)
 	{
 		i = 3;
@@ -98,11 +102,11 @@ int	main(int ac, char **av, char **env)
 		fdin = manage_fd(av[1], 0);
 		close(fdin);
 	}
-	while (i < ac - 2)
-		redir(&pipex, av[i++], env);
 	fdout = manage_fd(av[ac - 1], 1);
 	verif_dup2(fdout, STDOUT_FILENO);
-	last_child(&pipex, env, av[ac - 2]);
+	while (i < ac - 2)
+		redir(&pipex, av[i++], env);
+	last_child(&pipex, env, av[i]);
 	close (fdout);
 	return (1);
 }

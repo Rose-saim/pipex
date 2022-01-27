@@ -6,7 +6,7 @@
 /*   By: myrmarti <myrmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:13:59 by myrmarti          #+#    #+#             */
-/*   Updated: 2022/01/25 14:15:04 by myrmarti         ###   ########.fr       */
+/*   Updated: 2022/01/27 10:19:52 by myrmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ void	exec(t_pipex *pipex, char *cmd, char **env)
 	}
 }
 
-void	redir(t_pipex *pipex , char *cmd, char **env)
+void	redir(t_pipex *pipex, char *cmd, char **env)
 {
-	int		ret;
+	int	ret;
 
 	ret = pipe(pipex->door);
 	if (ret < 0)
@@ -62,7 +62,6 @@ void	here_doc(char *limiter)
 {
 	pid_t	child;
 	int		door[2];
-
 
 	child = fork();
 	if (child < 0)
