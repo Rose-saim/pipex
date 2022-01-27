@@ -56,12 +56,33 @@ void	write_to_limiter(char *limiter, int door[])
 	perror("ERROR");
 }
 
+void	last_child(t_pipex *pipex, char **env, char *cmd)
+{
+	pipe(pipex->door);
+	pipex->child_1 = fork();
+	if (pipex->child_1 == 0)
+	{	
+		close(pipex->door[1]);
+		verif_dup2(pipex->door[0], STDIN_FILENO);
+		close(pipex->door[0]);
+		waitpid(pipex->child_1, NULL, 0);
+	}
+	else
+	{
+		close(pipex->door[0]);
+		exec(pipex,  cmd, env);
+	}
+	waitpid(pipex->child_1,NULL, 0);
+}
+
 int	main(int ac, char **av, char **env)
 {
+	t_pipex pipex;
 	int	fdin;
 	int	fdout;
 	int	i;
 
+	pipex.child_1 = 0;
 	if (ac < 5)
 		msg_error("Invalid number of arguments\n");
 	if (argument_empty(av) == -1)
@@ -78,9 +99,10 @@ int	main(int ac, char **av, char **env)
 		close(fdin);
 	}
 	while (i < ac - 2)
-		redir(av[i++], env);
+		redir(&pipex, av[i++], env);
 	fdout = manage_fd(av[ac - 1], 1);
+	verif_dup2(fdout, STDOUT_FILENO);
+	last_child(&pipex, env, av[ac - 2]);
 	close (fdout);
-	exec(av[ac - 2], env);
 	return (1);
 }

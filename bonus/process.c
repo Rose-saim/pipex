@@ -12,11 +12,10 @@
 
 #include "pipex.h"
 
-void	exec(char *cmd, char **env)
+void	exec(t_pipex *pipex, char *cmd, char **env)
 {
 	char	**args;
 	char	*path;
-	int		ret;
 
 	args = ft_split(cmd, ' ');
 	path = get_path(args[0], env);
@@ -28,40 +27,34 @@ void	exec(char *cmd, char **env)
 	}
 	else
 	{
-		ret = execve(path, args, env);
-		if (ret < 0)
-			msg_error("Error about execve");
-		else
-			msg_error("Error about execve");
-		exit(1);
+		execve(path, args, env);
+		waitpid(pipex->child_1, NULL, 0);
 	}
 }
 
-void	redir(char *cmd, char **env)
+void	redir(t_pipex *pipex , char *cmd, char **env)
 {
-	pid_t	child;
 	int		ret;
-	int		door[2];
 
-	ret = pipe(door);
+	ret = pipe(pipex->door);
 	if (ret < 0)
 		msg_error("Error pipe in redir");
-	child = fork();
-	if (child < 0)
+	pipex->child_1 = fork();
+	if (pipex->child_1 < 0)
 		msg_error("Error fork in redir");
-	if (child)
+	if (pipex->child_1 != 0)
 	{
-		close(door[1]);
-		verif_dup2(door[0], STDIN_FILENO);
-		close(door[0]);
-		waitpid(child, NULL, 0);
+		close(pipex->door[1]);
+		verif_dup2(pipex->door[0], STDIN_FILENO);
+		close(pipex->door[0]);
+		waitpid(pipex->child_1, NULL, 0);
 	}
-	else
+	if (pipex->child_1 == 0)
 	{
-		close(door[0]);
-		verif_dup2(door[1], STDOUT_FILENO);
-		close(door[1]);
-		exec(cmd, env);
+		close(pipex->door[0]);
+		verif_dup2(pipex->door[1], STDOUT_FILENO);
+		close(pipex->door[1]);
+		exec(pipex, cmd, env);
 	}
 }
 
@@ -69,12 +62,8 @@ void	here_doc(char *limiter)
 {
 	pid_t	child;
 	int		door[2];
-	int		ret;
 
-	write(1, "heredoc>", 8);
-	ret = pipe(door);
-	if (ret < 0)
-		msg_error("Error pipe in here_doc");
+
 	child = fork();
 	if (child < 0)
 		perror("Error fork in here_doc");
